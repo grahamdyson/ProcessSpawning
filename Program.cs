@@ -60,8 +60,9 @@ namespace DevSnicket.ProcessSpawning
 				return true;
 			}
 		}
+
 		private static TResult InvokeInSeparateProcess<TParameter, TResult>(
-			this Func<TParameter, TResult> method,
+			Func<TParameter, TResult> method,
 			TParameter parameter)
 		{
 			using (Process process = CreateProcess())
