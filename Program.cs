@@ -14,14 +14,14 @@ namespace DevSnicket.ProcessSpawning
 	{
 		internal static void Main(string[] arguments)
 		{
-			if (!TryInvokeFromSeparateProcess(arguments))
+			if (!TryInvokeFromProcess(arguments))
 			{
 				Console.WriteLine("Enter a number and press the enter key to calculate primes:");
 
 				Console.WriteLine(
 					String.Join(
 						", ",
-						InvokeInSeparateProcess(
+						InvokeInProcess(
 							CalcuatePrimeNumbers,
 							Int32.Parse(Console.ReadLine()))));
 			}
@@ -35,19 +35,20 @@ namespace DevSnicket.ProcessSpawning
 				.ToArray();
 		}
 
-		private static Boolean TryInvokeFromSeparateProcess(
+		private static Boolean TryInvokeFromProcess(
 			IReadOnlyCollection<String> arguments)
 		{
 			if (arguments.Count != 1 || arguments.First() != _processArgument)
 				return false;
 			else
 			{
+				MethodAndParameter methodAndParameter;
+
 				using (Stream input = Console.OpenStandardInput())
-				using (Stream output = Console.OpenStandardOutput())
-				{
-					var methodAndParameter =
+					methodAndParameter =
 						Deserialise<MethodAndParameter>(input);
 
+				using (Stream output = Console.OpenStandardOutput())
 					Serialise(
 						output:
 							output,
@@ -55,20 +56,19 @@ namespace DevSnicket.ProcessSpawning
 							methodAndParameter.Method.Invoke(
 								null,
 								new[] { methodAndParameter.Parameter, }));
-				}
 
 				return true;
 			}
 		}
 
-		private static TResult InvokeInSeparateProcess<TParameter, TResult>(
+		private static TResult InvokeInProcess<TParameter, TResult>(
 			Func<TParameter, TResult> method,
 			TParameter parameter)
 		{
 			using (Process process = CreateProcess())
 			{
 				process.Start();
-
+				
 				if (Debugger.IsAttached)
 					AttachDebuggerToProcessId(process.Id);
 
@@ -136,7 +136,7 @@ namespace DevSnicket.ProcessSpawning
 			}
 		}
 
-		private const String _processArgument = "ProcessGateway";
+		private const String _processArgument = "RunSubprocess";
 
 		private static void AttachDebuggerToProcessId(
 			Int32 id)
