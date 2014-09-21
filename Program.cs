@@ -120,7 +120,7 @@ namespace DevSnicket.ProcessSpawning
 				process.StartInfo =
 					new ProcessStartInfo(
 						arguments: _processArgument,
-						fileName: Assembly.GetExecutingAssembly().Location)
+						fileName: Assembly.GetEntryAssembly().Location)
 					{
 						RedirectStandardInput = true,
 						RedirectStandardOutput = true,
